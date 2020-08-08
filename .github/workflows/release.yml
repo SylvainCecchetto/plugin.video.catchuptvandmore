@@ -28,7 +28,7 @@ jobs:
 
       - name: Set env
         run: |
-          echo ::set-env name=DEV_ADDON_XML_FP::plugin_dev/plugin.video.catchuptvandmore/addon.xml
+          DEV_ADDON_XML_FP=plugin_dev/plugin.video.catchuptvandmore/addon.xml
           echo "* addon.xml filepath of dev branch: $DEV_ADDON_XML_FP"
           echo ::set-env name=CURRENT_DEV_VERSION::$(cat $DEV_ADDON_XML_FP|grep "<addon"|sed "s/.* version=\"\(.*\)\" .*/\1/")
           echo "* Current dev version: $CURRENT_DEV_VERSION"
