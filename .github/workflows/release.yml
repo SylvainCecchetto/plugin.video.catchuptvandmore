@@ -18,25 +18,33 @@ jobs:
         with:
           fetch-depth: 0
           path: master
-          ref: 'master'
+          ref: master
 
       - name: Check out plugin repository dev branch
         uses: actions/checkout@v2
         with:
           path: dev
-          ref: 'dev'
+          ref: dev
 
       - name: Set env
         run: |
-          DEV_ADDON_XML_FP=plugin_dev/plugin.video.catchuptvandmore/addon.xml
+          DEV_ADDON_XML_FP=dev/plugin.video.catchuptvandmore/addon.xml
           echo "* addon.xml filepath of dev branch: $DEV_ADDON_XML_FP"
-          echo ::set-env name=CURRENT_DEV_VERSION::$(cat $DEV_ADDON_XML_FP|grep "<addon"|sed "s/.* version=\"\(.*\)\" .*/\1/")
+
+          CURRENT_DEV_VERSION=$(cat $DEV_ADDON_XML_FP|grep "<addon"|sed "s/.* version=\"\(.*\)\" .*/\1/")
           echo "* Current dev version: $CURRENT_DEV_VERSION"
-          echo ::set-env name=RELEASE_VERSION::$(cat $DEV_ADDON_XML_FP|grep "<addon"|sed "s/.* version=\"\(.*\)~.*/\1/")
+          echo ::set-env name=CURRENT_DEV_VERSION::$CURRENT_DEV_VERSION
+          
+          RELEASE_VERSION=$(cat $DEV_ADDON_XML_FP|grep "<addon"|sed "s/.* version=\"\(.*\)~.*/\1/")
+          echo ::set-env name=RELEASE_VERSION::$RELEASE_VERSION
           echo "* Next release version: $RELEASE_VERSION"
-          echo ::set-env name=NEXT_DEV_VERSION::$(MINOR=$(cat $DEV_ADDON_XML_FP|grep "<addon"|sed "s/.* version=\"\(.*\)~.*/\1/"|cut -d. -f3) && echo "0.2.$((MINOR+1))~beta00")
+
+          NEXT_DEV_VERSION=$(MINOR=$(cat $DEV_ADDON_XML_FP|grep "<addon"|sed "s/.* version=\"\(.*\)~.*/\1/"|cut -d. -f3) && echo "0.2.$((MINOR+1))~beta00")
+          echo ::set-env name=NEXT_DEV_VERSION::$NEXT_DEV_VERSION
           echo "* Next beta version: $NEXT_DEV_VERSION"
-          echo ::set-env name=PLUGIN_CHANGELOG::$(cat $DEV_ADDON_XML_FP|sed -n '/<news>/,/<\/news>/p'|sed 's#<news>##g'|sed 's#</news>##g'|sed '/^ *$/d'|tr '\n' '@'|sed 's#@#<br />#g')
+
+          PLUGIN_CHANGELOG=$(cat $DEV_ADDON_XML_FP|sed -n '/<news>/,/<\/news>/p'|sed 's#<news>##g'|sed 's#</news>##g'|sed '/^ *$/d'|tr '\n' '@'|sed 's#@#<br />#g')
+          echo ::set-env name=PLUGIN_CHANGELOG::$PLUGIN_CHANGELOG
           echo "* Changelog: $PLUGIN_CHANGELOG"
               
       - name: Update master code with dev code
